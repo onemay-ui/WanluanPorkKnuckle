@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食品工廠尋寶王：萬巒豬腳職場英語特訓</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Noto+Sans+TC:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', 'Noto Sans TC', sans-serif;
+            touch-action: manipulation;
+        }
+        /* Custom animations for item card entry */
+        @keyframes popIn {
+            0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+        /* Shake animation for error */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-8px); }
+            40%, 80% { transform: translateX(8px); }
+        }
+        .animate-shake {
+            animation: shake 0.4s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100 min-h-screen text-slate-800 flex flex-col justify-between selection:bg-orange-500 selection:text-white">
+
+    <header class="w-full bg-orange-600 text-white shadow-md py-4 px-6 flex justify-between items-center rounded-b-2xl">
+        <div class="flex items-center space-x-2">
+            <i class="fa-solid fa-drumstick-bite text-2xl text-amber-200"></i>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">萬巒豬腳品管特訓</h1>
+                <p class="text-xs text-orange-200">Food Factory Inspector (A1-A2)</p>
+            </div>
+        </div>
+        <div id="player-display" class="hidden text-right">
+            <span id="display-name" class="text-sm font-semibold block text-amber-100"></span>
+            <span class="text-xs bg-orange-700 px-2 py-0.5 rounded-full text-orange-200">檢驗員</span>
+        </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="flex-grow flex items-center justify-center p-4 max-w-md w-full mx-auto">
+
+        <!-- SCREEN 1: Registration Screen -->
+        <div id="screen-welcome" class="w-full bg-white rounded-3xl shadow-xl p-6 border border-orange-100 text-center space-y-6">
+            <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center mx-auto text-orange-600 text-3xl shadow-inner">
+                <i class="fa-solid fa-clipboard-check"></i>
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-slate-800">歡迎來到品管檢驗室</h2>
+                <p class="text-sm text-slate-500 mt-1">請輸入您的姓名，您可以先進行單字複習或直接開始檢驗挑戰！</p>
+            </div>
+            <div class="space-y-3 text-left">
+                <label for="username" class="block text-xs font-semibold uppercase tracking-wider text-slate-600">實習生姓名 (Student Name)</label>
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                        <i class="fa-regular fa-user"></i>
+                    </span>
+                    <input type="text" id="username" placeholder="例：王小明 (Alex)" class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white text-sm transition">
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="openPractice()" class="py-3.5 bg-amber-100 text-amber-800 font-bold rounded-xl shadow-sm hover:bg-amber-200 transition transform active:scale-95 flex items-center justify-center space-x-2 text-sm">
+                    <i class="fa-solid fa-book-open"></i>
+                    <span>單字複習區</span>
+                </button>
+                <button onclick="startGame()" class="py-3.5 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:from-orange-600 hover:to-amber-700 transition transform active:scale-95 flex items-center justify-center space-x-2 text-sm">
+                    <span>開始檢驗任務</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div class="text-xs text-slate-400 bg-orange-50 p-3 rounded-xl border border-orange-100/60 text-left space-y-1">
+                <p class="font-semibold text-orange-800"><i class="fa-solid fa-circle-info mr-1"></i> 遊戲規則：</p>
+                <p>• 看到萬巒豬腳<strong>正確設備/材料/標準品</strong> ➔ 按 <span class="text-emerald-600 font-bold">Accept (接收)</span></p>
+                <p>• 看到<strong>不相干項目/不良品/負面品評</strong> ➔ 按 <span class="text-rose-600 font-bold">Reject (排除)</span></p>
+                <p>• 點擊提示按鈕可看中文，但每次扣 5 分！</p>
+            </div>
+        </div>
+
+        <!-- SCREEN 1.5: Practice / Vocabulary Review Screen -->
+        <div id="screen-practice" class="w-full bg-white rounded-3xl shadow-xl p-6 border border-orange-100 hidden flex flex-col justify-between max-h-[85vh]">
+            <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+                <div class="flex items-center space-x-2 text-orange-600">
+                    <i class="fa-solid fa-book-bookmark text-lg"></i>
+                    <h3 class="font-bold text-base text-slate-800">單字與教具複習專區</h3>
+                </div>
+                <button onclick="closePractice()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <p class="text-xs text-slate-500 my-2">點擊任意單字卡片即可聆聽英文發音與查看中文意義：</p>
+            
+            <div id="practice-list-container" class="overflow-y-auto space-y-2.5 my-2 pr-1 max-h-[50vh]">
+                <!-- Populated dynamically via JS -->
+            </div>
+
+            <button onclick="closePractice()" class="w-full py-3 bg-orange-600 text-white font-bold rounded-xl shadow-md hover:bg-orange-700 transition text-sm mt-2">
+                返回開始畫面
+            </button>
+        </div>
+
+        <!-- SCREEN 2: Active Game Screen -->
+        <div id="screen-game" class="w-full bg-white rounded-3xl shadow-xl p-6 border border-orange-100 hidden flex flex-col justify-between min-h-[480px]">
+            <!-- Top Stats Bar -->
+            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-2xl border border-slate-100">
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-star"></i></span>
+                    <div>
+                        <span class="text-[10px] uppercase text-slate-400 block font-semibold">Score</span>
+                        <span id="score-val" class="font-bold text-slate-700 text-base">0</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-sm"><i class="fa-solid fa-clock"></i></span>
+                    <div>
+                        <span class="text-[10px] uppercase text-slate-400 block font-semibold">計時器 (Timer)</span>
+                        <span id="timer-val" class="font-bold text-slate-700 text-base">45s</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Item Card Box (Lowercase English Only, no category badge) -->
+            <div id="item-card-container" class="my-6 flex flex-col items-center justify-center text-center p-6 bg-gradient-to-b from-orange-50/50 to-amber-50/50 rounded-2xl border-2 border-dashed border-orange-200 animate-pop relative">
+                <!-- Audio Speech Button -->
+                <button onclick="speakCurrentItem()" class="absolute top-3 right-3 bg-white/80 hover:bg-white text-orange-600 p-2.5 rounded-full shadow-sm transition border border-orange-100" title="朗讀英文單字">
+                    <i class="fa-solid fa-volume-high text-sm"></i>
+                </button>
+
+                <!-- Hint Button (-5 pts) -->
+                <button onclick="useHint()" class="absolute top-3 left-3 bg-white/80 hover:bg-white text-amber-600 px-3 py-1.5 rounded-full shadow-sm transition border border-amber-100 text-xs font-semibold flex items-center space-x-1" title="使用中文提示 (-5分)">
+                    <i class="fa-solid fa-lightbulb"></i>
+                    <span>提示 (-5分)</span>
+                </button>
+
+                <div id="item-icon" class="text-6xl mb-4 text-orange-500 drop-shadow-sm mt-4">
+                    <!-- Dynamic Icon -->
+                </div>
+                <!-- Lowercase English Name (Prominent) -->
+                <h3 id="item-en" class="text-2xl font-bold text-slate-800 tracking-wide lowercase"></h3>
+                
+                <!-- Chinese Name (Revealed on hint or answer) -->
+                <p id="item-zh" class="text-sm text-emerald-600 font-semibold mt-2 min-h-[22px] opacity-0 transition-opacity duration-300"></p>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="handleAnswer('reject')" class="py-4 bg-rose-50 text-rose-600 border-2 border-rose-200 font-bold rounded-2xl shadow-sm hover:bg-rose-100 transition transform active:scale-95 flex flex-col items-center justify-center space-x-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                    <span class="text-sm">Reject (排除)</span>
+                    <span class="text-[10px] text-rose-400 font-normal">不相干 / 不良品</span>
+                </button>
+                <button onclick="handleAnswer('accept')" class="py-4 bg-emerald-50 text-emerald-600 border-2 border-emerald-200 font-bold rounded-2xl shadow-sm hover:bg-emerald-100 transition transform active:scale-95 flex flex-col items-center justify-center space-x-1">
+                    <i class="fa-solid fa-check text-xl"></i>
+                    <span class="text-sm">Accept (接收)</span>
+                    <span class="text-[10px] text-emerald-400 font-normal">萬巒豬腳正確項目</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- SCREEN 3: Game Over Screen -->
+        <div id="screen-gameover" class="w-full bg-white rounded-3xl shadow-xl p-6 border border-orange-100 text-center space-y-6 hidden">
+            <div id="gameover-icon" class="w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600 text-3xl shadow-inner">
+                <i class="fa-solid fa-award"></i>
+            </div>
+            <div>
+                <h2 id="gameover-title" class="text-2xl font-bold text-slate-800">檢驗任務完成！</h2>
+                <p id="gameover-desc" class="text-sm text-slate-500 mt-1">太棒了！您成功通過了萬巒豬腳食品廠的品管認證。</p>
+            </div>
+            
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 space-y-3">
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500">檢驗員 (Inspector)</span>
+                    <span id="summary-name" class="font-bold text-slate-700"></span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500">最終得分 (Final Score)</span>
+                    <span id="summary-score" class="font-bold text-orange-600 text-lg">0</span>
+                </div>
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-500">正確答題數 (Correct Items)</span>
+                    <span id="summary-correct" class="font-bold text-slate-700">0</span>
+                </div>
+            </div>
+
+            <button onclick="resetGame()" class="w-full py-3.5 bg-gradient-to-r from-orange-500 to-amber-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/30 hover:from-orange-600 hover:to-amber-700 transition transform active:scale-95 flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>重新挑戰任務</span>
+            </button>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-4 text-xs text-slate-400">
+        <p>萬巒豬腳職場英語教材與互動手遊 © 2026 食品加工科</p>
+    </footer>
+
+    <script>
+        // Item Database with complete expanded vocabulary (all lowercase English)
+        const gameItems = [
+            // --- 正確項目 (Accept) ---
+            { en: "pig's foreleg", zh: "豬前腿 (主料)", type: "accept", icon: "fa-solid fa-drumstick-bite" },
+            { en: "ginger slices", zh: "薑片 (原料A)", type: "accept", icon: "fa-solid fa-seedling" },
+            { en: "green onions", zh: "青蔥 (原料A)", type: "accept", icon: "fa-solid fa-spa" },
+            { en: "herbal bag", zh: "香料袋 / 中藥包 (裝原料B)", type: "accept", icon: "fa-solid fa-bag-shopping" },
+            { en: "fennel seeds", zh: "小茴香 (原料B 香料)", type: "accept", icon: "fa-solid fa-spa" },
+            { en: "sand ginger (kaempferia galanga)", zh: "三（山）奈 (原料B 香料)", type: "accept", icon: "fa-solid fa-seedling" },
+            { en: "dried tangerine peel", zh: "陳皮 (原料B 香料)", type: "accept", icon: "fa-solid fa-lemon" },
+            { en: "licorice root", zh: "甘草 (原料B 香料)", type: "accept", icon: "fa-solid fa-leaf" },
+            { en: "sichuan peppercorns", zh: "花椒粒 (原料B 香料)", type: "accept", icon: "fa-solid fa-circle-dot" },
+            { en: "tsaoko / black cardamom (crushed)", zh: "草果（拍開） (原料B 香料)", type: "accept", icon: "fa-solid fa-seedling" },
+            { en: "angelica dahurica", zh: "白芷 (原料B 香料)", type: "accept", icon: "fa-solid fa-spa" },
+            { en: "star anise", zh: "八角 (原料B 香料)", type: "accept", icon: "fa-solid fa-star" },
+            { en: "galangal", zh: "南薑 (原料B 香料)", type: "accept", icon: "fa-solid fa-seedling" },
+            { en: "cinnamon stick", zh: "桂皮 (原料B 香料)", type: "accept", icon: "fa-solid fa-bone" },
+            { en: "fried shallots", zh: "油蔥酥 (原料B 香料)", type: "accept", icon: "fa-solid fa-bowl-food" },
+            { en: "braising seasonings", zh: "滷汁調味料 (醬油、米酒、黑糖等)", type: "accept", icon: "fa-solid fa-bottle-droplet" },
+            { en: "dipping sauce ingredients", zh: "沾醬材料 (醬油膏、蒜末、辣椒等)", type: "accept", icon: "fa-solid fa-bowl-rice" },
+            { en: "stainless steel pot", zh: "不鏽鋼鍋 (設備)", type: "accept", icon: "fa-solid fa-pot-food" },
+            { en: "gas stove", zh: "瓦斯爐 (設備)", type: "accept", icon: "fa-solid fa-fire-burner" },
+            { en: "digital scale", zh: "電子秤 (設備)", type: "accept", icon: "fa-solid fa-scale-balanced" },
+            { en: "slow cooker", zh: "慢火滷鍋 (設備)", type: "accept", icon: "fa-solid fa-bowl-food" },
+            { en: "amber color", zh: "琥珀色澤 (品評合格)", type: "accept", icon: "fa-solid fa-circle-check" },
+            { en: "glossy and intact", zh: "光亮完整 (品評合格)", type: "accept", icon: "fa-solid fa-gem" },
+            { en: "firm and tender with elasticity", zh: "肉質柔韌具彈性 (品評合格)", type: "accept", icon: "fa-solid fa-hand-holding-heart" },
+            { en: "no unpleasant pork odor", zh: "無肉腥味 (品評合格)", type: "accept", icon: "fa-solid fa-shield-heart" },
+
+            // --- 誘答 / 排除項目 (Reject) ---
+            // 不相干設備
+            { en: "toaster", zh: "烤麵包機 (不相干設備)", type: "reject", icon: "fa-solid fa-bread-slice" },
+            { en: "microwave", zh: "微波爐 (不相干設備)", type: "reject", icon: "fa-solid fa-microwave" },
+            { en: "blender", zh: "果汁機 (不相干設備)", type: "reject", icon: "fa-solid fa-blender" },
+            { en: "coffee maker", zh: "咖啡機 (不相干設備)", type: "reject", icon: "fa-solid fa-mug-hot" },
+            { en: "oven", zh: "烤箱 (不相干設備)", type: "reject", icon: "fa-solid fa-temperature-high" },
+            { en: "refrigerator", zh: "冰箱 (不相干設備)", type: "reject", icon: "fa-solid fa-box" },
+            
+            // 香料與食材誘答
+            { en: "black peppercorns", zh: "黑胡椒粒 (誘答選項)", type: "reject", icon: "fa-solid fa-circle-dot" },
+            { en: "white pepper powder", zh: "白胡椒粉 (誘答選項)", type: "reject", icon: "fa-solid fa-pepper-hot" },
+            { en: "chili powder", zh: "辣椒粉 (誘答選項)", type: "reject", icon: "fa-solid fa-fire" },
+            { en: "salt", zh: "鹽 (誘答選項)", type: "reject", icon: "fa-solid fa-cubes" },
+            { en: "sugar", zh: "糖 (誘答選項)", type: "reject", icon: "fa-solid fa-cube" },
+            { en: "minced garlic", zh: "蒜泥 (誘答選項)", type: "reject", icon: "fa-solid fa-seedling" },
+            { en: "chopped green onions", zh: "蔥花 (誘答選項)", type: "reject", icon: "fa-solid fa-spa" },
+            { en: "curry powder", zh: "咖哩粉 (誘答選項)", type: "reject", icon: "fa-solid fa-jar" },
+            { en: "rosemary", zh: "迷迭香 (西餐香料)", type: "reject", icon: "fa-solid fa-leaf" },
+            { en: "basil", zh: "九層塔 (非本配方食材)", type: "reject", icon: "fa-solid fa-seedling" },
+            { en: "pork slices", zh: "豬肉片 (非萬巒主料)", type: "reject", icon: "fa-solid fa-bacon" },
+            { en: "beef chunks", zh: "牛肉塊 (不相干肉品)", type: "reject", icon: "fa-solid fa-bone" },
+            { en: "chicken breast", zh: "雞胸肉 (不相干肉品)", type: "reject", icon: "fa-solid fa-drumstick-bite" },
+            { en: "fish fillets", zh: "魚肉 (不相干肉品)", type: "reject", icon: "fa-solid fa-fish" },
+            { en: "tofu", zh: "豆腐 (不相干食材)", type: "reject", icon: "fa-solid fa-square" },
+            { en: "eggs", zh: "雞蛋 (不相干食材)", type: "reject", icon: "fa-solid fa-egg" },
+            { en: "cheese slices", zh: "起司片 (不相干食材)", type: "reject", icon: "fa-solid fa-cheese" },
+
+            // 外觀與色澤類負面品評
+            { en: "burnt", zh: "過焦 / 燒焦", type: "reject", icon: "fa-solid fa-triangle-exclamation" },
+            { en: "too dark", zh: "色澤過深 / 太黑", type: "reject", icon: "fa-solid fa-circle" },
+            { en: "uneven color", zh: "顏色不均", type: "reject", icon: "fa-solid fa-palette" },
+            { en: "damaged skin", zh: "外皮破損 / Broken skin", type: "reject", icon: "fa-solid fa-ban" },
+            { en: "too pale", zh: "太白 / 沒上色 (Under-colored)", type: "reject", icon: "fa-solid fa-circle-notch" },
+
+            // 口感與質地類負面品評
+            { en: "overcooked", zh: "過熟 / 太爛 (Mushy)", type: "reject", icon: "fa-solid fa-face-dizzy" },
+            { en: "too hard", zh: "太硬 / 沒滷透 (Tough / Under-cooked)", type: "reject", icon: "fa-solid fa-shield" },
+            { en: "too dry", zh: "太乾", type: "reject", icon: "fa-solid fa-droplet-slash" },
+            { en: "lacks elasticity", zh: "缺乏彈性 / 太軟 (Too soft)", type: "reject", icon: "fa-solid fa-water" },
+            { en: "too greasy", zh: "口感油膩 (Oily)", type: "reject", icon: "fa-solid fa-oil-well" },
+
+            // 氣味與味道類負面品評
+            { en: "strong pork odor", zh: "肉腥味太重 (Gamey smell)", type: "reject", icon: "fa-solid fa-skull" },
+            { en: "too salty", zh: "太鹹", type: "reject", icon: "fa-solid fa-face-grimace" },
+            { en: "too sweet", zh: "太甜", type: "reject", icon: "fa-solid fa-candy-cane" },
+            { en: "bland", zh: "味道不足 / 太淡 (Lacking flavor)", type: "reject", icon: "fa-solid fa-cloud" },
+            { en: "off-flavor", zh: "異味 / 臭味 (Spoiled smell)", type: "reject", icon: "fa-solid fa-triangle-exclamation" }
+        ];
+
+        // Game State Variables
+        let playerName = "";
+        let score = 0;
+        let correctCount = 0;
+        let timeLeft = 45;
+        let timerInterval = null;
+        let currentItem = null;
+        let isGameActive = false;
+        let hintUsedForCurrent = false;
+
+        // DOM Elements
+        const screenWelcome = document.getElementById("screen-welcome");
+        const screenPractice = document.getElementById("screen-practice");
+        const screenGame = document.getElementById("screen-game");
+        const screenGameover = document.getElementById("screen-gameover");
+        const usernameInput = document.getElementById("username");
+        const playerDisplay = document.getElementById("player-display");
+        const displayName = document.getElementById("display-name");
+        
+        const scoreVal = document.getElementById("score-val");
+        const timerVal = document.getElementById("timer-val");
+        const itemCardContainer = document.getElementById("item-card-container");
+        const itemIcon = document.getElementById("item-icon");
+        const itemEn = document.getElementById("item-en");
+        const itemZh = document.getElementById("item-zh");
+        const practiceListContainer = document.getElementById("practice-list-container");
+
+        // Web Audio API Sound Effects Generator
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playSound(type) {
+            try {
+                const ctx = getAudioContext();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+
+                if (type === 'correct') {
+                    // Happy upbeat chime
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    // Buzz error sound
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.setValueAtTime(100, now + 0.15);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'hint') {
+                    // Soft sparkle for hint
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(880, now);
+                    osc.frequency.setValueAtTime(1108.73, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                }
+            } catch (e) {
+                console.log("Audio not allowed yet or supported", e);
+            }
+        }
+
+        // Practice Screen Functions
+        function openPractice() {
+            screenWelcome.classList.add("hidden");
+            screenPractice.classList.remove("hidden");
+            renderPracticeList();
+        }
+
+        function closePractice() {
+            screenPractice.classList.add("hidden");
+            screenWelcome.classList.remove("hidden");
+        }
+
+        function renderPracticeList() {
+            // Always rebuild or render to ensure container is populated
+            let html = "";
+            gameItems.forEach((item) => {
+                const badgeColor = item.type === 'accept' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200';
+                const typeText = item.type === 'accept' ? '正確項目 (Accept)' : '排除/誘答 (Reject)';
+                
+                html += `
+                    <div onclick="speakVocabItem('${item.en.replace(/'/g, "\\'")}')" class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-orange-50/50 transition cursor-pointer flex items-center justify-between shadow-xs">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-lg shrink-0">
+                                <i class="${item.icon}"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-800 text-sm lowercase">${item.en}</h4>
+                                <p class="text-xs text-slate-500">${item.zh}</p>
+                            </div>
+                        </div>
+                        <div class="text-right flex items-center space-x-2 shrink-0">
+                            <span class="text-[10px] px-2 py-0.5 rounded-full border ${badgeColor}">${typeText}</span>
+                            <i class="fa-solid fa-volume-high text-orange-500 text-sm"></i>
+                        </div>
+                    </div>
+                `;
+            });
+            practiceListContainer.innerHTML = html;
+        }
+
+        function speakVocabItem(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Start Game Function
+        function startGame() {
+            const name = usernameInput.value.trim();
+            if (!name) {
+                usernameInput.classList.add("ring-2", "ring-rose-500");
+                setTimeout(() => {
+                    usernameInput.classList.remove("ring-2", "ring-rose-500");
+                }, 1000);
+                usernameInput.focus();
+                return;
+            }
+
+            playerName = name;
+            displayName.innerText = playerName;
+            playerDisplay.classList.remove("hidden");
+
+            // Switch screens
+            screenWelcome.classList.add("hidden");
+            screenPractice.classList.add("hidden");
+            screenGameover.classList.add("hidden");
+            screenGame.classList.remove("hidden");
+
+            // Reset stats
+            score = 0;
+            correctCount = 0;
+            timeLeft = 45;
+            scoreVal.innerText = score;
+            timerVal.innerText = timeLeft + "s";
+            isGameActive = true;
+
+            // Load first item and start timer
+            loadRandomItem();
+            startTimer();
+        }
+
+        // Timer Function
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerVal.innerText = timeLeft + "s";
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // Load Random Item
+        function loadRandomItem() {
+            if (!isGameActive) return;
+            
+            hintUsedForCurrent = false;
+
+            // Pick a random item from gameItems
+            const randomIndex = Math.floor(Math.random() * gameItems.length);
+            currentItem = gameItems[randomIndex];
+
+            // Update UI elements (Chinese is hidden by default, English is lowercase)
+            itemEn.innerText = currentItem.en.toLowerCase();
+            itemZh.innerText = currentItem.zh;
+            itemZh.classList.add("opacity-0"); // Hide Chinese initially
+            itemIcon.innerHTML = `<i class="${currentItem.icon}"></i>`;
+
+            // Trigger re-entry animation
+            itemCardContainer.classList.remove("animate-pop");
+            void itemCardContainer.offsetWidth; // trigger reflow
+            itemCardContainer.classList.add("animate-pop");
+
+            // Auto pronounce on load for accessibility & listening practice
+            speakCurrentItem();
+        }
+
+        // Text-to-Speech Pronunciation
+        function speakCurrentItem() {
+            if (!currentItem) return;
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // stop previous
+                const utterance = new SpeechSynthesisUtterance(currentItem.en);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Use Hint (-5 points)
+        function useHint() {
+            if (!isGameActive || hintUsedForCurrent) return;
+            hintUsedForCurrent = true;
+
+            // Deduct 5 points
+            score = Math.max(0, score - 5);
+            scoreVal.innerText = score;
+
+            // Reveal Chinese translation
+            itemZh.classList.remove("opacity-0");
+
+            // Play hint sound
+            playSound('hint');
+        }
+
+        // Handle Player Answer (Accept / Reject)
+        function handleAnswer(playerChoice) {
+            if (!isGameActive) return;
+
+            const isCorrect = (playerChoice === currentItem.type);
+
+            // Always reveal Chinese translation upon answering regardless of correctness
+            itemZh.classList.remove("opacity-0");
+
+            if (isCorrect) {
+                score += 10;
+                correctCount++;
+                scoreVal.innerText = score;
+                
+                // Play correct fun sound
+                playSound('correct');
+
+                // Visual feedback green flash
+                itemCardContainer.classList.add("bg-emerald-50", "border-emerald-300");
+                setTimeout(() => {
+                    itemCardContainer.classList.remove("bg-emerald-50", "border-emerald-300");
+                    loadRandomItem();
+                }, 1400); // 1.4s delay to let player read Chinese
+            } else {
+                score = Math.max(0, score - 5);
+                scoreVal.innerText = score;
+                
+                // Play incorrect fun sound
+                playSound('wrong');
+
+                // Visual feedback red shake
+                itemCardContainer.classList.add("animate-shake", "border-rose-400", "bg-rose-50");
+                setTimeout(() => {
+                    itemCardContainer.classList.remove("animate-shake", "border-rose-400", "bg-rose-50");
+                    loadRandomItem();
+                }, 1400); // 1.4s delay to let player read Chinese
+            }
+        }
+
+        // End Game Function
+        function endGame() {
+            isGameActive = false;
+            if (timerInterval) clearInterval(timerInterval);
+
+            // Switch screens
+            screenGame.classList.add("hidden");
+            screenGameover.classList.remove("hidden");
+
+            // Populate summary
+            document.getElementById("summary-name").innerText = playerName;
+            document.getElementById("summary-score").innerText = score + " 分";
+            document.getElementById("summary-correct").innerText = correctCount + " 項";
+
+            const gameoverTitle = document.getElementById("gameover-title");
+            const gameoverDesc = document.getElementById("gameover-desc");
+            const gameoverIcon = document.getElementById("gameover-icon");
+
+            if (score >= 50) {
+                gameoverTitle.innerText = "恭喜通過！品質特級檢驗員";
+                gameoverDesc.innerText = `太棒了 ${playerName}！您對萬巒豬腳的設備、香料與品質判定展現了高度專業！`;
+                gameoverIcon.className = "w-20 h-20 bg-emerald-100 rounded-full flex items-center justify-center mx-auto text-emerald-600 text-3xl shadow-inner";
+                gameoverIcon.innerHTML = '<i class="fa-solid fa-award"></i>';
+            } else {
+                gameoverTitle.innerText = "再接再厲！實習生";
+                gameoverDesc.innerText = `${playerName}，您對部分負面品評與誘答選項還不夠熟悉，建議再透過「單字複習區」複習一次喔！`;
+                gameoverIcon.className = "w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center mx-auto text-amber-600 text-3xl shadow-inner";
+                gameoverIcon.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i>';
+            }
+        }
+
+        // Reset Game
+        function resetGame() {
+            screenGameover.classList.add("hidden");
+            screenWelcome.classList.remove("hidden");
+            usernameInput.value = "";
+            playerDisplay.classList.add("hidden");
+        }
+    </script>
+</body>
+</html>
